@@ -1,0 +1,43 @@
+$%%%Here's my more generalized MATLAB code for class 1 and class 2 events:
+
+% Phonon interactions: Class 1 and Class 2 events
+
+% Define lattice and reciprocal lattice vectors
+a = [a1; a2; a3];   % lattice vectors
+b = 2*pi*inv(a);    % reciprocal lattice vectors
+
+% Define phonon momenta and frequencies
+q1 = [q1x; q1y; q1z];   % momentum of first phonon
+q2 = [q2x; q2y; q2z];   % momentum of second phonon
+q3 = q1 + q2;           % momentum of third phonon
+w1 = omega(q1);         % frequency of first phonon
+w2 = omega(q2);         % frequency of second phonon
+
+% Class 1 event: Two phonons interact to generate a third phonon
+if norm(q3) <= b(end)   % N-process
+    w3 = omega(q3);
+    G = [0; 0; 0];      % no reciprocal lattice vector required
+else                    % U-process
+    q3 = q3 - sign(dot(q3,b(end)))*b(end);  % flip q3 back into 1st Brillouin zone
+    w3 = omega(q3);
+    G = reciprocal_lattice_vector(q3);      % determine appropriate reciprocal lattice vector
+end
+
+% Class 2 event: Two phonons with opposite momenta generate a third phonon
+if norm(q2) == norm(q1) && dot(q1,q2) == -norm(q1)^2   % N-process
+    q3 = q2 - q1;
+    w3 = omega(q3);
+    G = [0; 0; 0];      % no reciprocal lattice vector required
+else                                                % U-process
+    q3 = q2 - q1;
+    q3 = q3 - sign(dot(q3,b(end)))*b(end);  % flip q3 back into 1st Brillouin zone
+    w3 = omega(q3);
+    G = reciprocal_lattice_vector(q3);      % determine appropriate reciprocal lattice vector
+end
+
+% Function to determine reciprocal lattice vector
+function G = reciprocal_lattice_vector(q)
+    b = 2*pi*inv(a);    % reciprocal lattice vectors
+    q_proj = dot(q,b(end,:))/norm(b(end,:))^2 * b(end,:); % projection of q onto last reciprocal lattice vector
+    G = round(q_proj);  % choose reciprocal lattice vector closest to q_proj
+end
